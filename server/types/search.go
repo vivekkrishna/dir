@@ -21,6 +21,8 @@ type RecordFilters struct {
 	SchemaVersions []string
 	Verified       *bool // Filter by verified status (name ownership verified via JWKS)
 	Trusted        *bool // Filter by trusted status (signature verification passed)
+	AnnotationKeys   []string
+	AnnotationValues []string
 }
 
 type FilterOption func(*RecordFilters)
@@ -141,5 +143,19 @@ func WithVerified(verified bool) FilterOption {
 func WithTrusted(trusted bool) FilterOption {
 	return func(sc *RecordFilters) {
 		sc.Trusted = &trusted
+	}
+}
+
+// WithAnnotationKeys filters records by annotation key patterns.
+func WithAnnotationKeys(keys ...string) FilterOption {
+	return func(sc *RecordFilters) {
+		sc.AnnotationKeys = append(sc.AnnotationKeys, keys...)
+	}
+}
+
+// WithAnnotationValues filters records by annotation value patterns.
+func WithAnnotationValues(values ...string) FilterOption {
+	return func(sc *RecordFilters) {
+		sc.AnnotationValues = append(sc.AnnotationValues, values...)
 	}
 }

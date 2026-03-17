@@ -43,6 +43,9 @@ target "_common" {
   ]
   args = {
     BUILD_LDFLAGS = "${BUILD_LDFLAGS}"
+    GOPROXY       = "direct"
+    GONOSUMCHECK  = "*"
+    GOFLAGS       = "-insecure"
   }
 }
 

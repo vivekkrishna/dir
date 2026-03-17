@@ -72,6 +72,9 @@ const (
 	// Query for trusted records (signature verification passed).
 	// Boolean field - use "true" or "false" as value.
 	RecordQueryType_RECORD_QUERY_TYPE_TRUSTED RecordQueryType = 14
+	// Query for annotation key:value pairs.
+	// Supports wildcard patterns in both key and value: "manager:alice", "team:*", "env:prod"
+	RecordQueryType_RECORD_QUERY_TYPE_ANNOTATION RecordQueryType = 15
 )
 
 // Enum value maps for RecordQueryType.
@@ -92,6 +95,7 @@ var (
 		12: "RECORD_QUERY_TYPE_MODULE_ID",
 		13: "RECORD_QUERY_TYPE_VERIFIED",
 		14: "RECORD_QUERY_TYPE_TRUSTED",
+		15: "RECORD_QUERY_TYPE_ANNOTATION",
 	}
 	RecordQueryType_value = map[string]int32{
 		"RECORD_QUERY_TYPE_UNSPECIFIED":    0,
@@ -109,6 +113,7 @@ var (
 		"RECORD_QUERY_TYPE_MODULE_ID":      12,
 		"RECORD_QUERY_TYPE_VERIFIED":       13,
 		"RECORD_QUERY_TYPE_TRUSTED":        14,
+		"RECORD_QUERY_TYPE_ANNOTATION":     15,
 	}
 )
 

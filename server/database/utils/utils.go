@@ -199,6 +199,26 @@ func QueryToFilters(queries []*searchv1.RecordQuery) ([]types.FilterOption, erro
 			trusted := strings.EqualFold(query.GetValue(), "true")
 			options = append(options, types.WithTrusted(trusted))
 
+		case searchv1.RecordQueryType_RECORD_QUERY_TYPE_ANNOTATION:
+			parts := strings.SplitN(query.GetValue(), ":", 2) //nolint:mnd
+			if len(parts) == 1 {
+				// No colon — treat entire value as annotation key (match any value)
+				options = append(options, types.WithAnnotationKeys(parts[0]))
+			} else {
+				key := parts[0]
+				if key == "" {
+					logger.Warn("Annotation query has empty key, skipping", "value", query.GetValue())
+
+					break
+				}
+
+				options = append(options, types.WithAnnotationKeys(key))
+
+				if parts[1] != "" {
+					options = append(options, types.WithAnnotationValues(parts[1]))
+				}
+			}
+
 		default:
 			logger.Warn("Unknown query type", "type", query.GetType())
 		}

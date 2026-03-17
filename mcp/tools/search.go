@@ -28,6 +28,7 @@ type SearchLocalInput struct {
 	Authors        []string `json:"authors,omitempty"         jsonschema:"Author name patterns (supports wildcards: * ?)"`
 	SchemaVersions []string `json:"schema_versions,omitempty" jsonschema:"Schema version patterns (supports wildcards: * ?)"`
 	ModuleIDs      []string `json:"module_ids,omitempty"      jsonschema:"Module ID patterns (exact match only)"`
+	Annotations    []string `json:"annotations,omitempty"     jsonschema:"Annotation search patterns in key:value format (supports wildcards: * ? [])"`
 }
 
 // SearchLocalOutput defines the output of local search.
@@ -140,7 +141,8 @@ func buildQueries(input SearchLocalInput) []*searchv1.RecordQuery {
 			len(input.SkillNames)+len(input.Locators)+len(input.ModuleNames)+
 			len(input.DomainIDs)+len(input.DomainNames)+
 			len(input.CreatedAts)+len(input.Authors)+
-			len(input.SchemaVersions)+len(input.ModuleIDs))
+			len(input.SchemaVersions)+len(input.ModuleIDs)+
+			len(input.Annotations))
 
 	// Add name queries
 	for _, name := range input.Names {
@@ -238,6 +240,14 @@ func buildQueries(input SearchLocalInput) []*searchv1.RecordQuery {
 		})
 	}
 
+	// Add annotation queries
+	for _, annotation := range input.Annotations {
+		queries = append(queries, &searchv1.RecordQuery{
+			Type:  searchv1.RecordQueryType_RECORD_QUERY_TYPE_ANNOTATION,
+			Value: annotation,
+		})
+	}
+
 	return queries
 }
 
@@ -315,6 +325,11 @@ func SearchLocalInputSchema() json.RawMessage {
 				"type": "array",
 				"items": {"type": "string"},
 				"description": "Module ID patterns (exact match only)"
+			},
+			"annotations": {
+				"type": "array",
+				"items": {"type": "string"},
+				"description": "Annotation search patterns in key:value format (supports wildcards: * ? [])"
 			}
 		}
 	}`

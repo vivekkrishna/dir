@@ -30,6 +30,7 @@ type options struct {
 	ModuleIDs      []string
 	Verified       bool // Filter for verified records only
 	Trusted        bool // Filter for trusted records only (signature verification passed)
+	Annotations    []string
 }
 
 // registerFlags adds search flags to the command.
@@ -55,6 +56,7 @@ func registerFlags(cmd *cobra.Command) {
 	flags.StringArrayVar(&opts.ModuleIDs, "module-id", nil, "Search for records with specific module ID (can be repeated)")
 	flags.BoolVar(&opts.Verified, "verified", false, "Filter for records with verified name ownership only")
 	flags.BoolVar(&opts.Trusted, "trusted", false, "Filter for records with trusted signature only")
+	flags.StringArrayVar(&opts.Annotations, "annotation", nil, "Search for records with specific annotation in key:value format (e.g., --annotation 'manager:alice' --annotation 'team:*')")
 
 	// Add examples in flag help
 	flags.Lookup("name").Usage = "Search for records with specific name (e.g., --name 'my-agent' --name 'web-*')"
@@ -78,7 +80,8 @@ func buildQueriesFromFlags() []*searchv1.RecordQuery {
 			len(opts.SkillNames)+len(opts.Locators)+len(opts.Modules)+
 			len(opts.DomainIDs)+len(opts.DomainNames)+
 			len(opts.CreatedAts)+len(opts.Authors)+
-			len(opts.SchemaVersions)+len(opts.ModuleIDs))
+			len(opts.SchemaVersions)+len(opts.ModuleIDs)+
+			len(opts.Annotations))
 
 	// Add name queries
 	for _, name := range opts.Names {
@@ -189,6 +192,14 @@ func buildQueriesFromFlags() []*searchv1.RecordQuery {
 		queries = append(queries, &searchv1.RecordQuery{
 			Type:  searchv1.RecordQueryType_RECORD_QUERY_TYPE_TRUSTED,
 			Value: "true",
+		})
+	}
+
+	// Add annotation queries
+	for _, annotation := range opts.Annotations {
+		queries = append(queries, &searchv1.RecordQuery{
+			Type:  searchv1.RecordQueryType_RECORD_QUERY_TYPE_ANNOTATION,
+			Value: annotation,
 		})
 	}
 

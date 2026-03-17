@@ -18,6 +18,14 @@ RUN --mount=type=cache,id=${TARGETPLATFORM}-apt,target=/var/cache/apt,sharing=lo
     gcc \
     libc6-dev
 
+ARG GOPROXY=direct
+ARG GONOSUMCHECK=*
+ARG GOFLAGS=-insecure
+ENV GOPROXY=${GOPROXY}
+ENV GONOSUMCHECK=${GONOSUMCHECK}
+ENV GOFLAGS=${GOFLAGS}
+ENV GONOSUMDB=*
+
 WORKDIR /build/runtime/server
 
 RUN --mount=type=cache,target=/go/pkg/mod \
