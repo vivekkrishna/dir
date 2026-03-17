@@ -83,4 +83,8 @@ enum RecordQueryType {
   // Query for trusted records (signature verification passed).
   // Boolean field - use "true" or "false" as value.
   RECORD_QUERY_TYPE_TRUSTED = 14;
+
+  // Query for annotation key:value pairs.
+  // Supports wildcard patterns in both key and value: "manager:alice", "team:*", "env:prod"
+  RECORD_QUERY_TYPE_ANNOTATION = 15;
 }

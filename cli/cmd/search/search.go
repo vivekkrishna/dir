@@ -50,6 +50,11 @@ Examples:
    dirctl search --trusted
    dirctl search --name "web*" --trusted
 
+7. Search by annotation key:value pairs:
+   dirctl search --annotation 'manager:alice'
+   dirctl search --annotation 'team:*'
+   dirctl search --annotation 'env:prod' --annotation 'region:us-*'
+
 Supported wildcards:
   * - matches zero or more characters
   ? - matches exactly one character
