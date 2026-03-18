@@ -22,21 +22,30 @@ func NewORASRepository(cfg ociconfig.Config) (*remote.Repository, error) {
 
 	// Configure repository
 	repo.PlainHTTP = cfg.Insecure
-	repo.Client = &auth.Client{
-		Client: retry.DefaultClient,
-		Header: http.Header{
-			"User-Agent": {"dir-client"},
-		},
-		Cache: auth.DefaultCache,
-		Credential: auth.StaticCredential(
-			cfg.RegistryAddress,
-			auth.Credential{
-				Username:     cfg.Username,
-				Password:     cfg.Password,
-				RefreshToken: cfg.RefreshToken,
-				AccessToken:  cfg.AccessToken,
-			},
-		),
+
+	if isECRRegistry(cfg.RegistryAddress) {
+		// ECR path: use AWS SDK GetAuthorizationToken
+		client, err := newECRAuthClient(cfg.RegistryAddress)
+		if err != nil {
+			return nil, fmt.Errorf("failed to create ECR auth client: %w", err)
+		}
+		repo.Client = client
+	} else {
+		// Non-ECR path: existing static credential
+		repo.Client = &auth.Client{
+			Client: retry.DefaultClient,
+			Header: http.Header{"User-Agent": {"dir-client"}},
+			Cache:  auth.DefaultCache,
+			Credential: auth.StaticCredential(
+				cfg.RegistryAddress,
+				auth.Credential{
+					Username:     cfg.Username,
+					Password:     cfg.Password,
+					RefreshToken: cfg.RefreshToken,
+					AccessToken:  cfg.AccessToken,
+				},
+			),
+		}
 	}
 
 	return repo, nil
