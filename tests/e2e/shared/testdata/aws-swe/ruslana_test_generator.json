@@ -1,0 +1,33 @@
+{
+  "name": "aws-swe/ruslana/test-generator",
+  "version": "1.2.0",
+  "schema_version": "0.8.0",
+  "description": "Agent that generates unit and integration tests from source code and specifications.",
+  "authors": [
+    "AWS SWE Team"
+  ],
+  "created_at": "2025-06-11T10:30:00Z",
+  "annotations": {
+    "alias": "ruslana",
+    "team": "testing",
+    "env": "production"
+  },
+  "skills": [
+    {
+      "name": "natural_language_processing/natural_language_generation/text_completion",
+      "id": 10201
+    }
+  ],
+  "locators": [
+    {
+      "type": "docker_image",
+      "url": "https://ghcr.io/aws-swe/test-generator"
+    }
+  ],
+  "domains": [
+    {
+      "id": 102,
+      "name": "technology/software_engineering"
+    }
+  ]
+}

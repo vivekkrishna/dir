@@ -402,6 +402,28 @@ apiserver:
 
     resources: {}
 
+  # AWS ECR Authentication (OPTIONAL)
+  # Enables automatic ECR credential management for using AWS ECR as the OCI registry.
+  # When enabled, disables the built-in Zot registry and uses ECR instead.
+  # See apiserver/values.yaml for full documentation.
+  #
+  # Prerequisites:
+  #   - serviceAccount.create: true with IRSA annotation
+  #   - IAM role with ecr:GetAuthorizationToken permission
+  #   - ECR repository must exist in the specified account/region
+  #
+  # Example:
+  #   ecrAuth:
+  #     enabled: true
+  #     region: us-west-2
+  #     accountId: "123456789012"
+  ecrAuth:
+    enabled: false
+    # region: us-west-2
+    # accountId: "123456789012"
+    # refreshSchedule: "0 */10 * * *"
+    # image: "amazon/aws-cli:latest"
+
   # Secrets configuration
   # Choose ONE of two methods:
   # 1. Helm-managed secrets (secrets.*) - credentials in values.yaml

@@ -1,0 +1,33 @@
+{
+  "name": "aws-swe/gurinder/data-pipeline",
+  "version": "1.0.0",
+  "schema_version": "0.8.0",
+  "description": "Data pipeline orchestration agent that designs, monitors, and optimizes ETL workflows.",
+  "authors": [
+    "AWS SWE Team"
+  ],
+  "created_at": "2025-06-17T07:00:00Z",
+  "annotations": {
+    "alias": "gurinder",
+    "team": "data-engineering",
+    "env": "production"
+  },
+  "skills": [
+    {
+      "name": "natural_language_processing/analytical_reasoning/problem_solving",
+      "id": 10702
+    }
+  ],
+  "locators": [
+    {
+      "type": "docker_image",
+      "url": "https://ghcr.io/aws-swe/data-pipeline"
+    }
+  ],
+  "domains": [
+    {
+      "id": 102,
+      "name": "technology/software_engineering"
+    }
+  ]
+}

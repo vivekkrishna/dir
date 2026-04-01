@@ -1,0 +1,37 @@
+{
+  "name": "aws-swe/ruslana/doc-writer",
+  "version": "2.0.0",
+  "schema_version": "0.8.0",
+  "description": "Documentation generation agent that produces API docs, READMEs, and architecture guides from code.",
+  "authors": [
+    "AWS SWE Team"
+  ],
+  "created_at": "2025-06-12T14:00:00Z",
+  "annotations": {
+    "alias": "ruslana",
+    "team": "documentation",
+    "env": "staging"
+  },
+  "skills": [
+    {
+      "name": "natural_language_processing/natural_language_generation/text_completion",
+      "id": 10201
+    },
+    {
+      "name": "natural_language_processing/analytical_reasoning/problem_solving",
+      "id": 10702
+    }
+  ],
+  "locators": [
+    {
+      "type": "docker_image",
+      "url": "https://ghcr.io/aws-swe/doc-writer"
+    }
+  ],
+  "domains": [
+    {
+      "id": 102,
+      "name": "technology/software_engineering"
+    }
+  ]
+}

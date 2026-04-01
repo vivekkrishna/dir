@@ -88,7 +88,7 @@ void main() {
           child: ChatScreen(aiService: mockService),
         ),
       ));
-       expect(find.text('Welcome to AGNTCY Agent Directory GUI'), findsOneWidget);
+       expect(find.text('Welcome to Agent Directory GUI'), findsOneWidget);
        expect(find.textContaining('Discover AI agents from the network'), findsOneWidget);
     });
 

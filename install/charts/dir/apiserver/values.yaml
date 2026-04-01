@@ -307,6 +307,44 @@ pvc:
   storageClassName: standard
   size: 1G
 
+# AWS ECR Authentication (OPTIONAL)
+# Enables automatic ECR credential management for using AWS ECR as the OCI registry.
+# Uses IRSA (IAM Roles for Service Accounts) or EKS Pod Identity for AWS credentials.
+#
+# How it works:
+#   1. An init container fetches an initial ECR token at pod startup
+#   2. A CronJob refreshes the token before the 12-hour expiry
+#   3. Credentials are stored in the same Kubernetes Secret used by ociAuth
+#
+# Prerequisites:
+#   - serviceAccount.create: true (required)
+#   - ServiceAccount annotated with IAM role ARN (via serviceAccount.annotations)
+#   - IAM role with ecr:GetAuthorizationToken permission
+#   - ECR repository must exist in the specified account/region
+#
+# Example:
+#   serviceAccount:
+#     create: true
+#     annotations:
+#       eks.amazonaws.com/role-arn: arn:aws:iam::123456789012:role/dir-ecr-access
+#   ecrAuth:
+#     enabled: true
+#     region: us-west-2
+#     accountId: "123456789012"
+ecrAuth:
+  enabled: false
+  # AWS region where the ECR registry lives (required when enabled)
+  # region: us-west-2
+
+  # AWS account ID that owns the ECR registry (required when enabled)
+  # accountId: "123456789012"
+
+  # Cron schedule for token refresh (default: every 10 hours, well before 12h expiry)
+  refreshSchedule: "0 */10 * * *"
+
+  # Container image for the AWS CLI (used by init container and CronJob)
+  image: "amazon/aws-cli:latest"
+
 # Service exposes gRPC server api
 service:
   type: ClusterIP

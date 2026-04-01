@@ -1,0 +1,76 @@
+{
+  "name": "aws-swe/caminov/incident-responder",
+  "version": "1.1.0",
+  "schema_version": "0.8.0",
+  "description": "Incident response agent that triages alerts, correlates logs, and suggests remediation steps. Integrates with the deploy-agent for automated rollback on critical incidents.",
+  "authors": [
+    "AWS SWE Team"
+  ],
+  "created_at": "2025-06-14T11:15:00Z",
+  "annotations": {
+    "alias": "caminov",
+    "team": "oncall",
+    "env": "production",
+    "connected_agent": "aws-swe/caminov/deploy-agent"
+  },
+  "skills": [
+    {
+      "name": "natural_language_processing/natural_language_understanding/contextual_comprehension",
+      "id": 10101
+    },
+    {
+      "name": "natural_language_processing/analytical_reasoning/problem_solving",
+      "id": 10702
+    }
+  ],
+  "locators": [
+    {
+      "type": "docker_image",
+      "url": "https://ghcr.io/aws-swe/incident-responder"
+    }
+  ],
+  "domains": [
+    {
+      "id": 102,
+      "name": "technology/software_engineering"
+    }
+  ],
+  "modules": [
+    {
+      "name": "integration/a2a",
+      "id": 203,
+      "data": {
+        "protocol_version": "0.2.6",
+        "capabilities": ["streaming"],
+        "input_modes": ["text/plain"],
+        "output_modes": ["application/json", "text/html"],
+        "transports": ["http"],
+        "card_data": {
+          "name": "aws-swe/caminov/incident-responder",
+          "description": "Incident response agent that triages alerts, correlates logs, and suggests remediation steps.",
+          "url": "https://incident-responder.aws-swe.internal:8080",
+          "provider": {
+            "organization": "AWS SWE Team"
+          },
+          "version": "1.1.0",
+          "skills": [
+            {
+              "id": "triage_alert",
+              "name": "Triage Alert",
+              "description": "Analyzes an incoming alert, correlates with recent deployments, and determines severity and recommended action.",
+              "tags": ["alert", "triage", "incident"],
+              "examples": ["Triage this P1 alert for service X with 5xx spike"]
+            },
+            {
+              "id": "request_rollback",
+              "name": "Request Deployment Rollback",
+              "description": "Calls the deploy-agent to initiate a rollback when a critical incident is confirmed.",
+              "tags": ["rollback", "deploy-agent", "remediation"],
+              "examples": ["Critical incident confirmed — request rollback of service X via deploy-agent"]
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
