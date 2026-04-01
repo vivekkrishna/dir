@@ -1,0 +1,33 @@
+{
+  "name": "aws-swe/paoloma/security-scanner",
+  "version": "1.0.0",
+  "schema_version": "0.8.0",
+  "description": "Security scanning agent that detects vulnerabilities, misconfigurations, and compliance issues in code and infrastructure.",
+  "authors": [
+    "AWS SWE Team"
+  ],
+  "created_at": "2025-06-15T09:30:00Z",
+  "annotations": {
+    "alias": "paoloma",
+    "team": "security",
+    "env": "production"
+  },
+  "skills": [
+    {
+      "name": "natural_language_processing/analytical_reasoning/problem_solving",
+      "id": 10702
+    }
+  ],
+  "locators": [
+    {
+      "type": "docker_image",
+      "url": "https://ghcr.io/aws-swe/security-scanner"
+    }
+  ],
+  "domains": [
+    {
+      "id": 102,
+      "name": "technology/software_engineering"
+    }
+  ]
+}

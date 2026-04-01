@@ -1,0 +1,37 @@
+{
+  "name": "aws-swe/gurinder/infra-agent",
+  "version": "2.1.0",
+  "schema_version": "0.8.0",
+  "description": "Infrastructure-as-code agent that generates, validates, and manages cloud resource templates.",
+  "authors": [
+    "AWS SWE Team"
+  ],
+  "created_at": "2025-06-18T16:20:00Z",
+  "annotations": {
+    "alias": "gurinder",
+    "team": "infrastructure",
+    "env": "staging"
+  },
+  "skills": [
+    {
+      "name": "natural_language_processing/natural_language_generation/text_completion",
+      "id": 10201
+    },
+    {
+      "name": "natural_language_processing/analytical_reasoning/problem_solving",
+      "id": 10702
+    }
+  ],
+  "locators": [
+    {
+      "type": "docker_image",
+      "url": "https://ghcr.io/aws-swe/infra-agent"
+    }
+  ],
+  "domains": [
+    {
+      "id": 102,
+      "name": "technology/software_engineering"
+    }
+  ]
+}

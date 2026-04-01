@@ -1,0 +1,100 @@
+# Copyright AGNTCY Contributors (https://github.com/agntcy)
+# SPDX-License-Identifier: Apache-2.0
+
+# ECR credential refresh CronJob
+# Periodically fetches a new ECR authorization token and updates the
+# Kubernetes Secret used by the apiserver and reconciler deployments.
+# Requires IRSA (IAM Roles for Service Accounts) or EKS Pod Identity
+# to provide AWS credentials to the pod.
+{{- if and .Values.ecrAuth .Values.ecrAuth.enabled }}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "chart.fullname" . }}-ecr-refresh
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+    app.kubernetes.io/component: ecr-credential-refresh
+spec:
+  schedule: {{ .Values.ecrAuth.refreshSchedule | default "0 */10 * * *" | quote }}
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 3
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/name: ecr-refresh
+            app.kubernetes.io/instance: {{ .Release.Name }}
+        spec:
+          serviceAccountName: {{ include "chart.serviceAccountName" . }}
+          restartPolicy: OnFailure
+          containers:
+            - name: ecr-refresh
+              image: {{ .Values.ecrAuth.image | default "amazon/aws-cli:latest" }}
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  set -e
+                  REGION={{ .Values.ecrAuth.region | required "ecrAuth.region is required when ecrAuth.enabled=true" | quote }}
+                  ACCOUNT={{ .Values.ecrAuth.accountId | required "ecrAuth.accountId is required when ecrAuth.enabled=true" | quote }}
+
+                  echo "Fetching ECR authorization token for ${ACCOUNT}.dkr.ecr.${REGION}.amazonaws.com"
+                  TOKEN=$(aws ecr get-login-password --region "${REGION}")
+
+                  # Patch the existing secret with fresh ECR credentials
+                  SECRET_NAME={{ include "chart.fullname" . }}
+                  ENCODED_USER=$(echo -n "AWS" | base64)
+                  ENCODED_PASS=$(echo -n "${TOKEN}" | base64)
+
+                  cat <<EOF | kubectl apply -f -
+                  apiVersion: v1
+                  kind: Secret
+                  metadata:
+                    name: ${SECRET_NAME}
+                    namespace: {{ .Release.Namespace }}
+                    labels:
+                      app.kubernetes.io/managed-by: ecr-refresh
+                  data:
+                    oci-username: ${ENCODED_USER}
+                    oci-password: ${ENCODED_PASS}
+                  EOF
+
+                  echo "ECR credentials refreshed successfully"
+---
+# RBAC: Allow the CronJob's ServiceAccount to patch the credentials Secret
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ include "chart.fullname" . }}-ecr-refresh
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+    app.kubernetes.io/component: ecr-credential-refresh
+rules:
+  - apiGroups: [""]
+    resources: ["secrets"]
+    resourceNames: [{{ include "chart.fullname" . | quote }}]
+    verbs: ["get", "patch", "update", "create"]
+  # create requires non-resourceName rule
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["create"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ include "chart.fullname" . }}-ecr-refresh
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+    app.kubernetes.io/component: ecr-credential-refresh
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ include "chart.fullname" . }}-ecr-refresh
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "chart.serviceAccountName" . }}
+    namespace: {{ .Release.Namespace }}
+{{- end }}

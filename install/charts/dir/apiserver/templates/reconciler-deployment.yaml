@@ -27,6 +27,25 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       serviceAccountName: {{ include "chart.serviceAccountName" . }}
+      {{- if and .Values.ecrAuth .Values.ecrAuth.enabled }}
+      initContainers:
+        - name: ecr-init
+          image: {{ .Values.ecrAuth.image | default "amazon/aws-cli:latest" }}
+          command:
+            - /bin/sh
+            - -c
+            - |
+              set -e
+              REGION={{ .Values.ecrAuth.region | quote }}
+              echo "Fetching initial ECR token for region ${REGION}"
+              TOKEN=$(aws ecr get-login-password --region "${REGION}")
+              echo -n "AWS" > /ecr-creds/username
+              echo -n "${TOKEN}" > /ecr-creds/password
+              echo "ECR credentials written to shared volume"
+          volumeMounts:
+            - name: ecr-creds
+              mountPath: /ecr-creds
+      {{- end }}
       containers:
         - name: reconciler
           image: "{{ .Values.reconciler.image.repository }}:{{ .Values.reconciler.image.tag }}"
@@ -45,7 +64,18 @@ spec:
                   name: {{ include "chart.fullname" . }}
                   key: postgres-password
             {{- end }}
-            {{- if or .Values.secrets.ociAuth.username .Values.secrets.ociAuth.password (and .Values.externalSecrets.enabled .Values.externalSecrets.ociAuth.enabled) }}
+            {{- if and .Values.ecrAuth .Values.ecrAuth.enabled }}
+            - name: RECONCILER_LOCAL_REGISTRY_AUTH_CONFIG_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "chart.fullname" . }}
+                  key: oci-username
+            - name: RECONCILER_LOCAL_REGISTRY_AUTH_CONFIG_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "chart.fullname" . }}
+                  key: oci-password
+            {{- else if or .Values.secrets.ociAuth.username .Values.secrets.ociAuth.password (and .Values.externalSecrets.enabled .Values.externalSecrets.ociAuth.enabled) }}
             - name: RECONCILER_LOCAL_REGISTRY_AUTH_CONFIG_USERNAME
               valueFrom:
                 secretKeyRef:
@@ -92,6 +122,10 @@ spec:
           resources:
             {{- toYaml .Values.reconciler.resources | nindent 12 }}
       volumes:
+        {{- if and .Values.ecrAuth .Values.ecrAuth.enabled }}
+        - name: ecr-creds
+          emptyDir: {}
+        {{- end }}
         - name: reconciler-config
           configMap:
             name: {{ include "chart.fullname" . }}

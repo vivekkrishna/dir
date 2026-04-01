@@ -35,6 +35,25 @@ spec:
       serviceAccountName: {{ include "chart.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      {{- if and .Values.ecrAuth .Values.ecrAuth.enabled }}
+      initContainers:
+        - name: ecr-init
+          image: {{ .Values.ecrAuth.image | default "amazon/aws-cli:latest" }}
+          command:
+            - /bin/sh
+            - -c
+            - |
+              set -e
+              REGION={{ .Values.ecrAuth.region | quote }}
+              echo "Fetching initial ECR token for region ${REGION}"
+              TOKEN=$(aws ecr get-login-password --region "${REGION}")
+              echo -n "AWS" > /ecr-creds/username
+              echo -n "${TOKEN}" > /ecr-creds/password
+              echo "ECR credentials written to shared volume"
+          volumeMounts:
+            - name: ecr-creds
+              mountPath: /ecr-creds
+      {{- end }}
       containers:
         - name: {{ .Chart.Name }}
           env:
@@ -56,7 +75,19 @@ spec:
                   name: {{ include "chart.fullname" . }}
                   key: sync-password
             {{- end }}
-            {{- if or .Values.secrets.ociAuth.username .Values.secrets.ociAuth.password (and .Values.externalSecrets.enabled .Values.externalSecrets.ociAuth.enabled) }}
+            {{- if and .Values.ecrAuth .Values.ecrAuth.enabled }}
+            # ECR credentials from init container (refreshed by CronJob)
+            - name: DIRECTORY_SERVER_STORE_OCI_AUTH_CONFIG_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "chart.fullname" . }}
+                  key: oci-username
+            - name: DIRECTORY_SERVER_STORE_OCI_AUTH_CONFIG_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "chart.fullname" . }}
+                  key: oci-password
+            {{- else if or .Values.secrets.ociAuth.username .Values.secrets.ociAuth.password (and .Values.externalSecrets.enabled .Values.externalSecrets.ociAuth.enabled) }}
             - name: DIRECTORY_SERVER_STORE_OCI_AUTH_CONFIG_USERNAME
               valueFrom:
                 secretKeyRef:
@@ -196,6 +227,10 @@ spec:
               subPath: authz_policies.csv
             {{- end }}
       volumes:
+        {{- if and .Values.ecrAuth .Values.ecrAuth.enabled }}
+        - name: ecr-creds
+          emptyDir: {}
+        {{- end }}
         - name: config-volume
           configMap:
             name: {{ include "chart.fullname" . }}

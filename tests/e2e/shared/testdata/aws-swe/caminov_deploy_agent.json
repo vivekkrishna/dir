@@ -1,0 +1,79 @@
+{
+  "name": "aws-swe/caminov/deploy-agent",
+  "version": "1.0.0",
+  "schema_version": "0.8.0",
+  "description": "Deployment orchestration agent that manages CI/CD pipelines and rollback strategies. Integrates with the incident-responder agent for automated rollback on critical alerts.",
+  "authors": [
+    "AWS SWE Team"
+  ],
+  "created_at": "2025-06-13T08:00:00Z",
+  "annotations": {
+    "alias": "caminov",
+    "team": "devops",
+    "env": "production",
+    "connected_agents": "aws-swe/caminov/incident-responder,aws-swe/ruslana/code-reviewer"
+  },
+  "skills": [
+    {
+      "name": "natural_language_processing/analytical_reasoning/problem_solving",
+      "id": 10702
+    }
+  ],
+  "locators": [
+    {
+      "type": "docker_image",
+      "url": "https://ghcr.io/aws-swe/deploy-agent"
+    }
+  ],
+  "domains": [
+    {
+      "id": 102,
+      "name": "technology/software_engineering"
+    }
+  ],
+  "modules": [
+    {
+      "name": "integration/a2a",
+      "id": 203,
+      "data": {
+        "protocol_version": "0.2.6",
+        "capabilities": ["streaming"],
+        "input_modes": ["text/plain"],
+        "output_modes": ["application/json", "text/html"],
+        "transports": ["http"],
+        "card_data": {
+          "name": "aws-swe/caminov/deploy-agent",
+          "description": "Deployment orchestration agent. Connects to incident-responder for rollback and code-reviewer for pre-deploy validation.",
+          "url": "https://deploy-agent.aws-swe.internal:8080",
+          "provider": {
+            "organization": "AWS SWE Team"
+          },
+          "version": "1.0.0",
+          "skills": [
+            {
+              "id": "trigger_rollback",
+              "name": "Trigger Deployment Rollback",
+              "description": "Initiates a rollback to the previous stable version. Called by aws-swe/caminov/incident-responder on critical alerts.",
+              "tags": ["rollback", "deployment", "incident-response"],
+              "examples": ["Rollback service X to previous version due to critical alert"]
+            },
+            {
+              "id": "get_deployment_status",
+              "name": "Get Deployment Status",
+              "description": "Returns the current deployment status, version, and health of a service.",
+              "tags": ["status", "deployment", "health"],
+              "examples": ["What is the current deployment status of service X?"]
+            },
+            {
+              "id": "request_code_review",
+              "name": "Request Pre-Deploy Code Review",
+              "description": "Sends code changes to aws-swe/ruslana/code-reviewer for validation before proceeding with deployment.",
+              "tags": ["code-review", "pre-deploy", "validation", "ruslana"],
+              "examples": ["Review the diff for service X before deploying to production"]
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -5,7 +5,6 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../main.dart';
@@ -953,26 +952,13 @@ Type your query or click a suggestion to get started!''',
 
     return Scaffold(
       appBar: AppBar(
-        title: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Blue logo for light mode, orange logo for dark mode
-            SvgPicture.asset(
-              isDark
-                  ? 'assets/images/logo-dark.svg'   // Orange on dark
-                  : 'assets/images/logo-light.svg', // Blue on light
-              height: 28,
-            ),
-            const SizedBox(width: 12),
-            const Text(
-              'Agent Directory GUI',
-              style: TextStyle(
-                fontWeight: FontWeight.w600,
-                fontSize: 16,
-                letterSpacing: -0.3,
-              ),
-            ),
-          ],
+        title: const Text(
+          'Agent Directory GUI',
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: 16,
+            letterSpacing: -0.3,
+          ),
         ),
         actions: [
           IconButton(
@@ -1063,7 +1049,7 @@ Type your query or click a suggestion to get started!''',
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      'Welcome to AGNTCY Agent Directory GUI',
+                                      'Welcome to Agent Directory GUI',
                                       style: TextStyle(
                                         fontSize: 18,
                                         fontWeight: FontWeight.w700,

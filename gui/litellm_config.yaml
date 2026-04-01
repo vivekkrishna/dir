@@ -1,0 +1,36 @@
+# LiteLLM Proxy Configuration for AWS Bedrock Integration
+# ======================================================
+#
+# This config file tells LiteLLM how to route OpenAI-compatible API requests
+# to AWS Bedrock. The Flutter GUI sends requests with model="gpt-4o" (hardcoded
+# in OpenAiCompatibleProvider), and LiteLLM matches on model_name to route to
+# the configured Bedrock model.
+#
+# AWS credentials are read from ~/.aws/credentials (refreshed via `ada`).
+# No credentials should ever be hardcoded in this file.
+#
+# Usage:
+#   litellm --config litellm_config.yaml
+#
+# The proxy will listen on http://localhost:4000 by default.
+
+model_list:
+  # model_name: The alias that must match the "model" field in incoming API requests.
+  #             The GUI's OpenAiCompatibleProvider sends "gpt-4o" by default.
+  - model_name: "gpt-4o"
+    litellm_params:
+      # model: The LiteLLM model identifier. Format: bedrock/<bedrock-model-id>
+      # See available models: https://docs.aws.amazon.com/bedrock/latest/userguide/models-supported.html
+      model: "bedrock/us.anthropic.claude-sonnet-4-20250514-v1:0"
+
+      # aws_region_name: AWS region where the Bedrock model is available.
+      # Claude 3.5 Sonnet v2 is available in us-west-2, us-east-1, eu-west-1, etc.
+      aws_region_name: "us-west-2"
+
+# Optional: Add more model aliases if you want to test different models.
+# Uncomment and adjust as needed:
+#
+#   - model_name: "gpt-3.5-turbo"
+#     litellm_params:
+#       model: "bedrock/anthropic.claude-3-haiku-20240307-v1:0"
+#       aws_region_name: "us-west-2"
