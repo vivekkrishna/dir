@@ -29,8 +29,6 @@ vars:
     - "{{.IMAGE_REPO}}/dir-ctl:{{.IMAGE_TAG}}"
     - "{{.IMAGE_REPO}}/dir-reconciler:{{.IMAGE_TAG}}"
     - "ghcr.io/project-zot/zot:v{{.ZOT_VERSION}}"
-    - "ghcr.io/spiffe/spire-server:{{.SPIRE_VERSION}}"
-    - "ghcr.io/spiffe/spire-agent:{{.SPIRE_VERSION}}"
     - "docker.io/bitnami/postgresql:{{.POSTGRESQL_VERSION}}"
 
   ## Image config
@@ -68,7 +66,6 @@ vars:
   LICENSEI_BIN: "{{ .BIN_DIR }}/licensei-{{.LICENSEI_VERSION}}"
   UV_VERSION: "0.10.11"
   UV_BIN: "{{ .BIN_DIR }}/uv-{{.UV_VERSION}}"
-  UV_PUBLISH_TOKEN: '{{ .UV_PUBLISH_TOKEN | default "" }}'
   COSIGN_VERSION: "3.0.5"
   COSIGN_BIN: "{{ .BIN_DIR }}/cosign-{{.COSIGN_VERSION}}"
   TRIVY_VERSION: "0.69.3"
