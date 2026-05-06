@@ -301,7 +301,7 @@ func (d *DB) RemoveRecord(cid string) error {
 
 // handleFilterOptions applies the provided filters to the query.
 //
-//nolint:gocognit,cyclop,nestif,gocyclo
+//nolint:gocognit,cyclop,nestif,gocyclo,maintidx
 func (d *DB) handleFilterOptions(query *gorm.DB, cfg *types.RecordFilters) *gorm.DB {
 	// Apply record-level filters with wildcard support.
 	if len(cfg.Names) > 0 {
@@ -378,6 +378,18 @@ func (d *DB) handleFilterOptions(query *gorm.DB, cfg *types.RecordFilters) *gorm
 			if condition != "" {
 				query = query.Where(condition, args...)
 			}
+		}
+	}
+
+	// Handle owner alias filter (from --manager expansion). Uses a separate JOIN alias
+	// to avoid interfering with general annotation filters.
+	if len(cfg.OwnerAliases) > 0 {
+		query = query.Joins("JOIN annotations owner_ann ON owner_ann.record_cid = records.record_cid")
+		query = query.Where("LOWER(owner_ann.key) = ?", "owner.id")
+
+		condition, args := utils.BuildWildcardCondition("owner_ann.value", cfg.OwnerAliases)
+		if condition != "" {
+			query = query.Where(condition, args...)
 		}
 	}
 

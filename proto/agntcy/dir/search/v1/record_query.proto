@@ -87,4 +87,9 @@ enum RecordQueryType {
   // Query for annotation key:value pairs.
   // Supports wildcard patterns in both key and value: "manager:alice", "team:*", "env:prod"
   RECORD_QUERY_TYPE_ANNOTATION = 15;
+
+  // Query for all agents owned by anyone in a manager's org subtree.
+  // Requires an OrgResolver to be configured on the server.
+  // Value is a manager alias (e.g., "alice@example.com").
+  RECORD_QUERY_TYPE_MANAGER = 16;
 }

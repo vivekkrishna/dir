@@ -23,6 +23,9 @@ type RecordFilters struct {
 	Trusted          *bool // Filter by trusted status (signature verification passed)
 	AnnotationKeys   []string
 	AnnotationValues []string
+	// OwnerAliases is populated by the manager resolver. It filters records whose
+	// owner.id annotation matches any alias in the list.
+	OwnerAliases []string
 }
 
 type FilterOption func(*RecordFilters)
@@ -157,5 +160,13 @@ func WithAnnotationKeys(keys ...string) FilterOption {
 func WithAnnotationValues(values ...string) FilterOption {
 	return func(sc *RecordFilters) {
 		sc.AnnotationValues = append(sc.AnnotationValues, values...)
+	}
+}
+
+// WithOwnerAliases filters records whose owner.id annotation matches any of the given aliases.
+// Used by the manager resolver to scope results to an org subtree.
+func WithOwnerAliases(aliases ...string) FilterOption {
+	return func(sc *RecordFilters) {
+		sc.OwnerAliases = append(sc.OwnerAliases, aliases...)
 	}
 }

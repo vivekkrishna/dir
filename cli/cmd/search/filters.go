@@ -26,6 +26,7 @@ type Filters struct {
 	Verified       bool
 	Trusted        bool
 	Annotations    []string
+	Managers       []string
 }
 
 // RegisterFilterFlags binds the standard search-filter flags to cmd, storing
@@ -63,6 +64,8 @@ func RegisterFilterFlags(cmd *cobra.Command, f *Filters) {
 		"Filter for records with trusted signature only (signature verification passed)")
 	flags.StringArrayVar(&f.Annotations, "annotation", nil,
 		"Search for records with specific annotation in key:value format (e.g., --annotation 'manager:alice' --annotation 'team:*')")
+	flags.StringArrayVar(&f.Managers, "manager", nil,
+		"Search for all agents owned by anyone in the manager's org subtree (e.g., --manager 'alice@example.com'). Requires the server to have an org resolver configured.")
 }
 
 // queryMapping maps a Filters field accessor to its RecordQueryType.
@@ -118,11 +121,17 @@ func BuildQueries(f *Filters) []*searchv1.RecordQuery {
 		})
 	}
 
-	// Add annotation queries
 	for _, annotation := range f.Annotations {
 		queries = append(queries, &searchv1.RecordQuery{
 			Type:  searchv1.RecordQueryType_RECORD_QUERY_TYPE_ANNOTATION,
 			Value: annotation,
+		})
+	}
+
+	for _, manager := range f.Managers {
+		queries = append(queries, &searchv1.RecordQuery{
+			Type:  searchv1.RecordQueryType_RECORD_QUERY_TYPE_MANAGER,
+			Value: manager,
 		})
 	}
 
