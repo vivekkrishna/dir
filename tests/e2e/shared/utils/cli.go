@@ -97,6 +97,7 @@ func (c *CLI) Search() *SearchBuilder {
 		authors:          []string{},
 		schemaVersions:   []string{},
 		moduleIDs:        []string{},
+		annotations:      []string{},
 		outputFormatArgs: []string{},
 		limit:            0,
 		offset:           0,
@@ -119,6 +120,7 @@ func (c *CLI) SearchRecords() *SearchBuilder {
 		authors:          []string{},
 		schemaVersions:   []string{},
 		moduleIDs:        []string{},
+		annotations:      []string{},
 		outputFormatArgs: []string{},
 		limit:            0,
 		offset:           0,
@@ -483,6 +485,7 @@ type SearchBuilder struct {
 	authors          []string
 	schemaVersions   []string
 	moduleIDs        []string
+	annotations      []string
 	outputFormatArgs []string
 	limit            int
 	offset           int
@@ -560,6 +563,12 @@ func (s *SearchBuilder) WithModuleID(moduleID string) *SearchBuilder {
 	return s
 }
 
+func (s *SearchBuilder) WithAnnotation(annotation string) *SearchBuilder {
+	s.annotations = append(s.annotations, annotation)
+
+	return s
+}
+
 func (s *SearchBuilder) WithLimit(limit int) *SearchBuilder {
 	s.limit = limit
 
@@ -578,57 +587,29 @@ func (s *SearchBuilder) WithArgs(args ...string) *SearchBuilder {
 	return s
 }
 
+func appendFlagValues(args []string, flag string, values []string) []string {
+	for _, v := range values {
+		args = append(args, flag, v)
+	}
+
+	return args
+}
+
 func (s *SearchBuilder) Execute() (string, error) {
 	searchArgs := []string{"--format", s.format}
-
-	// Build search arguments using direct field flags
-	for _, name := range s.names {
-		searchArgs = append(searchArgs, "--name", name)
-	}
-
-	for _, version := range s.versions {
-		searchArgs = append(searchArgs, "--version", version)
-	}
-
-	for _, skillID := range s.skillIDs {
-		searchArgs = append(searchArgs, "--skill-id", skillID)
-	}
-
-	for _, skillName := range s.skillNames {
-		searchArgs = append(searchArgs, "--skill", skillName)
-	}
-
-	for _, locator := range s.locators {
-		searchArgs = append(searchArgs, "--locator", locator)
-	}
-
-	for _, module := range s.modules {
-		searchArgs = append(searchArgs, "--module", module)
-	}
-
-	for _, domainID := range s.domainIDs {
-		searchArgs = append(searchArgs, "--domain-id", domainID)
-	}
-
-	for _, domain := range s.domains {
-		searchArgs = append(searchArgs, "--domain", domain)
-	}
-
-	for _, createdAt := range s.createdAts {
-		searchArgs = append(searchArgs, "--created-at", createdAt)
-	}
-
-	for _, author := range s.authors {
-		searchArgs = append(searchArgs, "--author", author)
-	}
-
-	for _, schemaVersion := range s.schemaVersions {
-		searchArgs = append(searchArgs, "--schema-version", schemaVersion)
-	}
-
-	for _, moduleID := range s.moduleIDs {
-		searchArgs = append(searchArgs, "--module-id", moduleID)
-	}
+	searchArgs = appendFlagValues(searchArgs, "--name", s.names)
+	searchArgs = appendFlagValues(searchArgs, "--version", s.versions)
+	searchArgs = appendFlagValues(searchArgs, "--skill-id", s.skillIDs)
+	searchArgs = appendFlagValues(searchArgs, "--skill", s.skillNames)
+	searchArgs = appendFlagValues(searchArgs, "--locator", s.locators)
+	searchArgs = appendFlagValues(searchArgs, "--module", s.modules)
+	searchArgs = appendFlagValues(searchArgs, "--domain-id", s.domainIDs)
+	searchArgs = appendFlagValues(searchArgs, "--domain", s.domains)
+	searchArgs = appendFlagValues(searchArgs, "--created-at", s.createdAts)
+	searchArgs = appendFlagValues(searchArgs, "--author", s.authors)
+	searchArgs = appendFlagValues(searchArgs, "--schema-version", s.schemaVersions)
+	searchArgs = appendFlagValues(searchArgs, "--module-id", s.moduleIDs)
+	searchArgs = appendFlagValues(searchArgs, "--annotation", s.annotations)
 
 	if s.limit > 0 {
 		searchArgs = append(searchArgs, "--limit", strconv.Itoa(s.limit))
@@ -638,7 +619,6 @@ func (s *SearchBuilder) Execute() (string, error) {
 		searchArgs = append(searchArgs, "--offset", strconv.Itoa(s.offset))
 	}
 
-	// Append any additional args (like --output) at the end
 	searchArgs = append(searchArgs, s.outputFormatArgs...)
 
 	return s.CommandBuilder.WithArgs(searchArgs...).Execute()

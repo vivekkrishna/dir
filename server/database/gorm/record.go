@@ -25,10 +25,11 @@ type Record struct {
 	Authors       []string `gorm:"column:authors;serializer:json"` // Stored as JSON array
 	Signed        bool     `gorm:"column:signed;default:false"`    // Whether at least one signature is attached
 
-	Skills   []Skill   `gorm:"foreignKey:RecordCID;references:RecordCID;constraint:OnDelete:CASCADE"`
-	Locators []Locator `gorm:"foreignKey:RecordCID;references:RecordCID;constraint:OnDelete:CASCADE"`
-	Modules  []Module  `gorm:"foreignKey:RecordCID;references:RecordCID;constraint:OnDelete:CASCADE"`
-	Domains  []Domain  `gorm:"foreignKey:RecordCID;references:RecordCID;constraint:OnDelete:CASCADE"`
+	Skills      []Skill      `gorm:"foreignKey:RecordCID;references:RecordCID;constraint:OnDelete:CASCADE"`
+	Locators    []Locator    `gorm:"foreignKey:RecordCID;references:RecordCID;constraint:OnDelete:CASCADE"`
+	Modules     []Module     `gorm:"foreignKey:RecordCID;references:RecordCID;constraint:OnDelete:CASCADE"`
+	Domains     []Domain     `gorm:"foreignKey:RecordCID;references:RecordCID;constraint:OnDelete:CASCADE"`
+	Annotations []Annotation `gorm:"foreignKey:RecordCID;references:RecordCID;constraint:OnDelete:CASCADE"`
 }
 
 // Implement central Record interface.
@@ -46,8 +47,12 @@ type RecordDataAdapter struct {
 }
 
 func (r *RecordDataAdapter) GetAnnotations() map[string]string {
-	// Database records don't store annotations, return empty map
-	return make(map[string]string)
+	annotations := make(map[string]string, len(r.record.Annotations))
+	for _, a := range r.record.Annotations {
+		annotations[a.Key] = a.Value
+	}
+
+	return annotations
 }
 
 func (r *RecordDataAdapter) GetDomains() []types.Domain {
@@ -168,6 +173,7 @@ func (d *DB) AddRecord(record types.Record) error {
 		Locators:      convertLocators(recordData.GetLocators(), cid),
 		Modules:       convertModules(recordData.GetModules(), cid),
 		Domains:       convertDomains(recordData.GetDomains(), cid),
+		Annotations:   convertAnnotations(recordData.GetAnnotations(), cid),
 	}
 
 	// Let GORM handle the entire creation with associations
@@ -177,7 +183,7 @@ func (d *DB) AddRecord(record types.Record) error {
 
 	logger.Debug("Added new record with associations to database", "record_cid", dbRecord.RecordCID, "cid", cid,
 		"skills", len(dbRecord.Skills), "locators", len(dbRecord.Locators), "modules", len(dbRecord.Modules),
-		"domains", len(dbRecord.Domains))
+		"domains", len(dbRecord.Domains), "annotations", len(dbRecord.Annotations))
 
 	return nil
 }
@@ -369,6 +375,25 @@ func (d *DB) handleFilterOptions(query *gorm.DB, cfg *types.RecordFilters) *gorm
 
 		if len(cfg.DomainNames) > 0 {
 			condition, args := utils.BuildWildcardCondition("domains.name", cfg.DomainNames)
+			if condition != "" {
+				query = query.Where(condition, args...)
+			}
+		}
+	}
+
+	// Handle annotation filters with wildcard support.
+	if len(cfg.AnnotationKeys) > 0 || len(cfg.AnnotationValues) > 0 {
+		query = query.Joins("JOIN annotations ON annotations.record_cid = records.record_cid")
+
+		if len(cfg.AnnotationKeys) > 0 {
+			condition, args := utils.BuildWildcardCondition("annotations.key", cfg.AnnotationKeys)
+			if condition != "" {
+				query = query.Where(condition, args...)
+			}
+		}
+
+		if len(cfg.AnnotationValues) > 0 {
+			condition, args := utils.BuildWildcardCondition("annotations.value", cfg.AnnotationValues)
 			if condition != "" {
 				query = query.Where(condition, args...)
 			}

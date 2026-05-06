@@ -24,6 +24,7 @@ func init() {
 		12: "module-id",
 		13: "verified",
 		14: "trusted",
+		15: "annotation",
 	}
 	RecordQueryType_value = map[string]int32{
 		"":               0,
@@ -42,6 +43,7 @@ func init() {
 		"module-id":      12,
 		"verified":       13,
 		"trusted":        14,
+		"annotation":     15,
 	}
 
 	ValidQueryTypes = []string{
@@ -59,5 +61,6 @@ func init() {
 		"module-id",
 		"verified",
 		"trusted",
+		"annotation",
 	}
 }
